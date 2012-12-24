@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+	<ModulePrefs title="Time Zane Gadget" width="355">
+		<Require feature="wave"/>
+		<Require feature="dynamic-height"/>
+	</ModulePrefs>
+	<Content type="html">
+		<![CDATA[
+			<style type="text/css">
+				#content {
+					/* background-color:rgba(202,227,252,0.5); */
+					background-color:#E7EEDA;
+					
+					        border-radius:16px;
+					   -moz-border-radius:16px;
+					-webkit-border-radius:16px;
+					
+					  padding-left:16px;
+					 padding-right:16px;
+					   padding-top:16px;
+					padding-bottom:8px;
+					
+					font-family:Arial, Helvetica, sans-serif;
+					font-size:10pt;
+					
+					width:auto;
+				}
+				#clock {
+					text-align:center;
+				}
+				#localTime {
+					font-size:24pt;
+				}
+				#settings {
+					border-top-style:solid;
+					border-top-width:1px;
+					border-top-color:rgb(160,160,160);
+					
+					margin-top:16px;
+					padding-top:16px;
+					
+					text-align:center;
+				}
+			</style>
+			<script type="text/javascript">
+				function init() {
+					if (wave && wave.isInWaveContainer()) {
+						wave.setStateCallback(stateUpdated);
+						wave.setModeCallback(modeChanged);
+					}
+				}
+				gadgets.util.registerOnLoadHandler(init);
+				
+				function stateUpdated() {
+					var state = wave.getState();
+					
+					var today = new Date();
+					
+					var mo = parseInt(state.get("month", "0"));
+					var d = parseInt(state.get("date", "1"));
+					var y = parseInt(state.get("year", "2010"));
+					var h = parseInt(state.get("hour", "0"));
+					var m = parseInt(state.get("min", "0"));
+					
+					document.getElementById("utcTime").innerHTML = "UTC: " + document.getElementById("month").options[mo].text + " " + d + ", " + y + " at " + h + ":";
+					if (m < 10) {
+						document.getElementById("utcTime").innerHTML += "0";
+					}
+					document.getElementById("utcTime").innerHTML += m;
+					
+					
+					h -= Math.floor(today.getTimezoneOffset() / 60);
+					if (h > 23) {
+						h -= 24;
+						d++;
+						if (m == 1) {
+							if (y % 4 == 0) {
+								if (d > 29) {
+									d -= 29;
+									m++;
+								}
+							} else {
+								if (d > 28) {
+									d -= 28;
+									m++;
+								}
+							}
+						} else if (m == 3 || m == 5 || m == 8 || m == 10) {
+							if (d > 30) {
+								d -= 30;
+								m++;
+							}
+						} else {
+							if (d > 31) {
+								d -= 31;
+								m++;
+								if (m > 11) {
+									m -= 12;
+									y++;
+								}
+							}
+						}
+					} else if (h < 0) {
+						h += 24;
+						d--;
+						if (d < 0) {
+							m--;
+							if (m < 0) {
+								y--;
+								m += 12;
+							}
+							if (m == 1) {
+								if (y % 4 == 0) {
+									d += 29;
+								} else {
+									d += 28;
+								}
+							} else if (m == 3 || m == 5 || m == 8 || m == 10) {
+								d += 30;
+							} else {
+								d += 31;
+							}
+						}
+					}
+					
+					document.getElementById("localDate").innerHTML = document.getElementById("month").options[mo].text + " " + d + ", " + y + " at";
+					document.getElementById("localTime").innerHTML = h + ":";
+					if (m < 10) {
+						document.getElementById("localTime").innerHTML += "0";
+					}
+					document.getElementById("localTime").innerHTML += m;
+					
+					document.getElementById("month").value = mo;
+					document.getElementById("date").value = d;
+					document.getElementById("year").value = y;
+					document.getElementById("hour").value = "" + h;
+					document.getElementById("min").value = m;
+					
+					
+					gadgets.window.adjustHeight();
+					
+					wave.setSnippet(document.getElementById("utcTime").innerHTML);
+				}
+				function modeChanged() {
+					if (wave.getMode() == wave.Mode.EDIT) {
+						document.getElementById("settings").style.display = "block";
+					} else {
+						document.getElementById("settings").style.display = "none";
+					}
+					gadgets.window.adjustHeight();
+				}
+				
+				
+				function setMonth(val) {
+					wave.getState().submitDelta({"month":val});
+					if (val == "1" || val == "3" || val == "5" || val == "8" || val == "10") {
+						document.getElementById("day31").disabled = true;
+					} else {
+						document.getElementById("day31").disabled = false;
+					}
+					if (val == "1") {
+						document.getElementById("day30").disabled = true;
+					} else {
+						document.getElementById("day30").disabled = false;
+					}
+				}
+				function setDate(val) {
+					wave.getState().submitDelta({"date":val});
+				}
+				function setYear(val) {
+					wave.getState().submitDelta({"year":val});
+				}
+				
+				function setHour(val) {
+					var h = parseInt(val);
+					var today = new Date();
+					h += Math.floor(today.getTimezoneOffset() / 60);
+					if (h > 23) {
+						h -= 24;
+					} else if (h < 0) {
+						h += 24;
+					}
+					//alert(Math.floor(today.getTimezoneOffset() / 60) + " | " + val + " | " + h);
+					wave.getState().submitDelta({"hour":h});
+				}
+				function setMin(val) {
+					wave.getState().submitDelta({"min":val});
+				}
+			</script>
+			<div id="content">
+				<div id="clock">
+					<span id="localDate"></span>
+					<br/>
+					<span id="localTime"></span>
+					<br/>
+					<br/>
+					<span id="utcTime"></span>
+				</div>
+				<div id="settings">
+					<select id="month" onChange="setMonth(value);">
+						<option value="0">January</option>
+						<option value="1">February</option>
+						<option value="2">March</option>
+						<option value="3">April</option>
+						<option value="4">May</option>
+						<option value="5">June</option>
+						<option value="6">July</option>
+						<option value="7">August</option>
+						<option value="8">September</option>
+						<option value="9">October</option>
+						<option value="10">November</option>
+						<option value="11">December</option>
+					</select>
+					<select id="date" onChange="setDate(value);">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+						<option value="13">13</option>
+						<option value="14">14</option>
+						<option value="15">15</option>
+						<option value="16">16</option>
+						<option value="17">17</option>
+						<option value="18">18</option>
+						<option value="19">19</option>
+						<option value="20">20</option>
+						<option value="21">21</option>
+						<option value="22">22</option>
+						<option value="23">23</option>
+						<option value="24">24</option>
+						<option value="25">25</option>
+						<option value="26">26</option>
+						<option value="27">27</option>
+						<option value="28">28</option>
+						<option value="29">29</option>
+						<option value="30" id="day30">30</option>
+						<option value="31" id="day31">31</option>
+					</select>,
+					<select id="year" onChange="setYear(value);">
+						<option value="2010">2010</option>
+						<option value="2011">2011</option>
+						<option value="2012">2012</option>
+						<option value="2013">2013</option>
+					</select>
+					at
+					<select id="hour" onChange="setHour(value);">
+						<option value="0">00</option>
+						<option value="1">01</option>
+						<option value="2">02</option>
+						<option value="3">03</option>
+						<option value="4">04</option>
+						<option value="5">05</option>
+						<option value="6">06</option>
+						<option value="7">07</option>
+						<option value="8">08</option>
+						<option value="9">09</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+						<option value="13">13</option>
+						<option value="14">14</option>
+						<option value="15">15</option>
+						<option value="16">16</option>
+						<option value="17">17</option>
+						<option value="18">18</option>
+						<option value="19">19</option>
+						<option value="20">20</option>
+						<option value="21">21</option>
+						<option value="22">22</option>
+						<option value="23">23</option>
+					</select>:<select id="min" onChange="setMin(value);">
+						<option value="0">00</option>
+						<option value="5">05</option>
+						<option value="10">10</option>
+						<option value="15">15</option>
+						<option value="20">20</option>
+						<option value="25">25</option>
+						<option value="30">30</option>
+						<option value="35">35</option>
+						<option value="40">40</option>
+						<option value="45">45</option>
+						<option value="50">50</option>
+						<option value="55">55</option>
+					</select>
+					<br/>
+					<br/>
+				</div>
+			</div>
+		]]> 
+	</Content>
+</Module>

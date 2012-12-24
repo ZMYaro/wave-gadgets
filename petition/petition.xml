@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<ModulePrefs title="Petition Gadget">
+		<Require feature="wave"/>
+	</ModulePrefs>
+	<Content type="html">
+		<![CDATA[
+			<style type="text/css">
+				body {
+					font-family:Arial, sans-serif;
+					font-size:10pt;
+				}
+				button {
+					background-image:-moz-linear-gradient(top, White, rgb(221,221,221));
+					background-image:-webkit-gradient(linear, left top, left bottom, from(White), to(rgb(221,221,221)));
+					
+					border-style:solid;
+					border-width:1px;
+					border-color:rgb(171,171,171);
+					        border-radius:3px;
+					   -moz-border-radius:3px;
+					-webkit-border-radius:3px;
+					
+					        box-shadow:1px 1px 0px 0px white;
+					   -moz-box-shadow:1px 1px 0px 0px white;
+					-webkit-box-shadow:1px 1px 0px 0px white;
+					
+					color:Black;
+					font-family:Arial;
+					font-size:8.5pt;
+					text-align:center;
+					padding-left:6px;
+					padding-right:6px;
+					padding-top:3px;
+					padding-bottom:3px;
+					
+					       user-select:none;
+					  -moz-user-select:none;
+					-khtml-user-select:none;
+					
+					display:inline-block;
+					
+					cursor:pointer;
+				}
+				button:active {
+					background-image:-moz-linear-gradient(top, rgb(170,170,170), rgb(229,229,229));
+					background-image:-webkit-gradient(linear, left top, left bottom, from(rgb(170,170,170)), to(rgb(229,229,229)));
+				}
+				
+				#content {
+					background-color:#EEE;
+					
+					border-top-width:1px;
+					border-top-style:solid;
+					border-top-color:	#CCC;
+					        border-radius:6px;
+					   -moz-border-radius:6px;
+					-webkit-border-radius:6px;
+					
+					padding-top:10px;
+					padding-right:16px;
+					padding-bottom:10px;
+					padding-left:10px;
+				}
+				#petition {
+					background-color:white;
+					background-repeat:no-repeat;
+					background-position:right bottom;
+					background-image:none;
+					
+					border-style:solid;
+					border-width:1px;
+					border-color:silver;
+					
+					padding:4px;
+					
+					color:black;
+					font-family:Arial, sans-serif;
+					font-size:10pt;
+				}
+				#settings {
+					display:none;
+				}
+				#edit-list {
+					border-style:solid;
+					border-width:1px;
+					border-color:silver;
+					
+					width:384px;
+				}
+			</style>
+			<script type="text/javascript">
+				var adminList = null;
+				
+				
+				function init() {
+					if (wave && wave.isInWaveContainer()) {
+						wave.setStateCallback(stateUpdated);
+						wave.setModeCallback(modeChanged);
+					}
+				}
+				gadgets.util.registerOnLoadHandler(init);
+				
+				function stateUpdated() {
+					var state = wave.getState();
+					if (wave.getMode() != wave.Mode.EDIT) {
+						 document.getElementById("petition").innerHTML = state.get("petitionTxt", "");
+					}
+					
+					var total = 0;
+					var signerIds = state.get("signerIds", "");
+					if (signerIds != "") {
+						if (signerIds.indexOf(wave.getViewer().getId()) != -1) {
+							document.getElementById("signBtn").style.display = "none";
+							document.getElementById("unsignBtn").style.display = "inline-block";
+						} else {
+							document.getElementById("unsignBtn").style.display = "none";
+							document.getElementById("signBtn").style.display = "inline-block";
+						}
+						var signersDiv = document.getElementById("signers");
+						signersDiv.innerHTML = "";
+						signerIds = signerIds.split(",");
+						for (var i = 0; i < signerIds.length; i++) {
+							var signer = wave.getParticipantById(signerIds[i]);
+							if (signer == null) {
+								break;
+							}
+							var signerPic = document.createElement("img");
+							signerPic.src = signer.getThumbnailUrl();
+							signerPic.title = signer.getDisplayName();
+							signerPic.style.width = "48px";
+							signerPic.style.height = "48px";
+							signersDiv.appendChild(signerPic);
+						}
+						total = signerIds.length;
+					}
+					document.getElementById("total").innerHTML = total;
+					
+					gadgets.window.adjustHeight();
+				}
+				function modeChanged() {
+					if (wave.getMode() == wave.Mode.EDIT) {
+						//if (adminList == null || adminList.indexOf(wave.getViewer().getId()) != -1) {
+							document.getElementById("petition").contenteditable = "true";
+							document.getElementById("petition").style.userModify = "read-write";
+							document.getElementById("petition").style.mozUserModify = "read-write";
+							document.getElementById("petition").style.webkitUserModify = "read-write";
+							document.getElementById("petition").style.backgroundImage = "url('http://mysite.verizon.net/zmyaro/projects/wave/gadgets/gray_pencil.png')";
+							//document.getElementById("settings").style.display = "block";
+						//}
+					} else {
+						document.getElementById("petition").style.userModify = "read-only";
+						document.getElementById("petition").style.mozUserModify = "read-only";
+						document.getElementById("petition").style.webkitUserModify = "read-only";
+						document.getElementById("petition").style.backgroundImage = "none";
+						//document.getElementById("petition").innerHTML = wave.getState().get("petitionTxt", "");
+						//document.getElementById("settings").style.display = "none";
+					}
+					gadgets.window.adjustHeight();
+				}
+				
+				function updateTxt() {
+					wave.getState().submitValue("petitionTxt", document.getElementById("petition").innerHTML);
+				}
+				function sign() {
+					var signerIds = wave.getState().get("signerIds", "");
+					if (signerIds != "") {
+						signerIds += ",";
+					}
+					signerIds += wave.getViewer().getId();
+					
+					wave.getState().submitValue("signerIds", signerIds);
+				}
+				function unsign() {
+					var signerIds = wave.getState().get("signerIds", "");
+					if (signerIds != "") {
+						signerIds = signerIds.replace(wave.getViewer().getId(), "");
+						signerIds = signerIds.replace(",,", ",");
+						wave.getState().submitValue("signerIds", signerIds);
+					}
+				}
+			</script>
+			<div id="content">
+				Petition
+				<div id="petition" onkeyup="updateTxt();">
+					&nbsp;
+				</div>
+				<br/>
+				<!-- <div id="settings">
+					<b>Petition can be edited by:</b>
+					<br/>
+					<label for="edit-anyone"><input type="radio" id="edit-anyone" onclick="document.getElementById('edit-list').disabled = true;"/> anyone who can edit the blip</label>
+					<br/>
+					<label for="edit-restrict"><input type="radio" id="edit-restrict" onclick="document.getElementById('edit-list').disabled = false;"/> only these people</label>
+					<input type="text" id="edit-list" value="(enter wave addresses here)"/>
+				</div>
+				<br/> -->
+				<div id="sign">
+					<button id="signBtn" onclick="sign();">Sign petition</button>
+					<button id="unsignBtn" style="display:none;" onclick="unsign();">Un-sign petition</button>
+					<br/>
+					<b>This petition has been signed by:</b>
+					<div id="signers"></div>
+					Total signatures: <span id="total"></span>
+				</div>
+			</div>
+		]]> 
+	</Content>
+</Module>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension
+	name="Google Like Button"
+	thumbnailUrl="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/like_120x120.png"
+	description="A like button similar to those in Google Reader, Google Buzz, and other Google products."
+	version="1"
+>
+	<author name="Zachary 'Gamer_Z.' Yaro"/>
+	<menuHook
+		location="toolbar"
+		text="Insert like button"
+		iconUrl="https://mail.google.com/mail/pimages/2/up/like-selected.gif"
+	>
+		<insertGadget url="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/like.xml"/>
+	</menuHook>
+</extension>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension
+	name="Instant No Button"
+	thumbnailUrl="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/no_120x120.png"
+	description="NOOOOOOOOOOOOOOO!  For use in dire situations"
+	version="1"
+>
+	<author name="Zachary 'Gamer_Z.' Yaro"/>
+	<menuHook
+		location="toolbar"
+		text="Insert Instant No Button"
+		iconUrl="https://mysite.verizon.net/zmyaro/projects/wave/gadgets/no_icon.png"
+	>
+		<insertGadget url="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/no.xml"/>
+	</menuHook>
+</extension>

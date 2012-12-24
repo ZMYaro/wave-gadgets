@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<ModulePrefs title="Yes/No/Mini" height="34">
+		<Require feature="wave"/>
+	</ModulePrefs>
+	<Content type="html">
+		<![CDATA[
+			<style type="text/css">
+				button {
+					border-style:solid;
+					border-width:1px;
+					        border-radius:4px; /* Opera, IE9 */
+					   -moz-border-radius:4px; /* Gecko (FF, SeaMonkey) */
+					-webkit-border-radius:4px; /* WebKit (Chrome, Safari) */
+					
+					
+					color:White;
+					text-shadow:rgba(0, 0, 0, 0.5) 1px 1px 0px;
+					font-family:Arial, Helvetica, sans-serif;
+					font-size:11pt;
+					text-align:center;
+					padding-left:4px;
+					padding-right:4px;
+					padding-top:2px;
+					padding-bottom:3px;
+					
+					       user-select:none;
+					  -moz-user-select:none;
+					-khtml-user-select:none;
+					
+					display:inline;
+					
+					cursor:pointer;
+					
+					white-space:nowrap;
+				}
+				button:hover {
+					        box-shadow: 0px 0px 1px orange; /* Opera, IE9 */
+					   -moz-box-shadow: 0px 0px 1px orange; /* Gecko (FF, SeaMonkey) */
+					-webkit-box-shadow: 0px 0px 1px orange; /* WebKit (Safari, Chrome) */
+				}
+				#yesBtn {
+					border-color:#527B09;
+					
+					background-color:#9B0;
+					/* Gecko (FF) */
+					background:-moz-linear-gradient(top, #92B009, #5E6F28);
+					/* WebKit (Chrome, Safari) */
+					background:-webkit-gradient(linear, left top, left bottom, from(#92B009), to(#5E6F28));
+				}
+				#yesBtn:active {
+					/* Gecko (FF) */
+					background:-moz-linear-gradient(top, #4A5900, #657C00);
+					/* WebKit (Chrome, Safari) */
+					background:-webkit-gradient(linear, left top, left bottom, from(#4A5900), to(#657C00));
+				}
+				#yesBtn:disabled {
+					background-color:#5E6F28;
+					background-image:none;
+					cursor:default;
+				}
+				#noBtn {
+					border-color:#600;
+					
+					background-color:#C00;
+					/* Gecko (FF) */
+					background:-moz-linear-gradient(top, #AE0D0D, #540200);
+					/* WebKit (Chrome, Safari) */
+					background:-webkit-gradient(linear, left top, left bottom, from(#AE0D0D), to(#540200));
+				}
+				#noBtn:active {
+					/* Gecko (FF) */
+					background:-moz-linear-gradient(top, #620000, #870000);
+					/* WebKit (Chrome, Safari) */
+					background:-webkit-gradient(linear, left top, left bottom, from(#620000), to(#870000));
+				}
+				#noBtn:disabled {
+					background-color:#690000;
+					background-image:none;
+					cursor:default;
+				}
+				#maybeBtn {
+					border-color:#7F6500;
+					
+					background-color:#FC0;
+					/* Gecko (FF) */
+					background:-moz-linear-gradient(top, #ECBF19, #9E8315);
+					/* WebKit (Chrome, Safari) */
+					background:-webkit-gradient(linear, left top, left bottom, from(#ECBF19), to(#9E8315));
+				}
+				#maybeBtn:active {
+					/* Gecko (FF) */
+					background:-moz-linear-gradient(top, #7A6100, #A98400);
+					/* WebKit (Chrome, Safari) */
+					background:-webkit-gradient(linear, left top, left bottom, from(#7A6100), to(#A98400));
+				}
+				#maybeBtn:disabled {
+					background-color:#9E8315;
+					background-image:none;
+					cursor:default;
+				}
+				
+				td {
+					padding:1px;
+					white-space:nowrap;
+				}
+				#yesCell {
+					background-color:#E7EEDA;
+					
+					   border-top-left-radius:6px;
+					border-bottom-left-radius:6px;
+					/* Gecko (FF, SeaMonkey) */
+					   -moz-border-top-left-radius:6px;
+					-moz-border-bottom-left-radius:6px;
+					/* WebKit (Chrome, Safari) */
+					   -webkit-border-top-left-radius:6px;
+					-webkit-border-bottom-left-radius:6px;
+				}
+				#noCell {
+					background-color:#F4D9D9;
+				}
+				#maybeCell {
+					background-color:#FFF0D9;
+					
+					   border-top-right-radius:6px;
+					border-bottom-right-radius:6px;
+					/* Gecko (FF, SeaMonkey) */
+					   -moz-border-top-right-radius:6px;
+					-moz-border-bottom-right-radius:6px;
+					/* WebKit (Chrome, Safari) */
+					   -webkit-border-top-right-radius:6px;
+					-webkit-border-bottom-right-radius:6px;
+				}
+			</style>
+			<script type="text/javascript">
+				function init() {
+					if (wave && wave.isInWaveContainer()) {
+						wave.setStateCallback(stateUpdated);
+					}
+				}
+				gadgets.util.registerOnLoadHandler(init);
+				
+				function stateUpdated() {
+					var y = wave.getState().get("yes", "").split(",");
+					var n = wave.getState().get("no", "").split(",");
+					var m = wave.getState().get("maybe", "").split(",");
+					if(y[0] == "") {
+						y.splice(0, 1);
+					}
+					if(n[0] == "") {
+						n.splice(0, 1);
+					}
+					if(m[0] == "") {
+						m.splice(0, 1);
+					}
+					
+					wave.setSnippet("Y:" + y.length + " N:" + n.length + " M:" + m.length);
+					document.getElementById("yesBtn").innerHTML = "Y (" + y.length + ")";
+					document.getElementById("noBtn").innerHTML = "N (" + n.length + ")";
+					document.getElementById("maybeBtn").innerHTML = "M (" + m.length + ")";
+					
+					gadgets.window.adjustWidth();
+					
+					document.getElementById("yesBtn").disabled = false;
+					document.getElementById("noBtn").disabled = false;
+					document.getElementById("maybeBtn").disabled = false;
+					
+					if(y.indexOf(wave.getViewer().getId()) != -1) {
+						document.getElementById("yesBtn").disabled = true;
+					} else if(n.indexOf(wave.getViewer().getId()) != -1) {
+						document.getElementById("noBtn").disabled = true;
+					} else if(m.indexOf(wave.getViewer().getId()) != -1) {
+						document.getElementById("maybeBtn").disabled = true;
+					}
+				}
+
+				function vote(choice) {
+					var y = wave.getState().get("yes", "").split(",");
+					var n = wave.getState().get("no", "").split(",");
+					var m = wave.getState().get("maybe", "").split(",");
+					
+					var lastVote = "none";
+					if(y.indexOf(wave.getViewer().getId()) != -1) {
+						lastVote = "yes";
+					} else if(n.indexOf(wave.getViewer().getId()) != -1) {
+						lastVote = "no";
+					} else if(m.indexOf(wave.getViewer().getId()) != -1) {
+						lastVote = "maybe";
+					}
+					
+					if (lastVote != "none") {
+						var l = wave.getState().get(lastVote, "");
+						l = l.replace(wave.getViewer().getId(), "");
+						l = l.replace(",,", ",");
+						if(l.charAt(0) == ",") {
+							l = l.substring(1);
+						} else if (l.charAt(l.length - 1) == ",") {
+							l = l.substring(0, l.length - 1);
+						}
+						wave.getState().submitValue(lastVote, l);
+					}
+					
+					var c;
+					if (choice == "yes") {
+						c = wave.getState().get("yes", "");
+					} else if (choice == "no") {
+						c = wave.getState().get("no", "");
+					} else if (choice == "maybe") {
+						c = wave.getState().get("maybe", "");
+					}
+					if(c != "") {
+						c += ",";
+					}
+					c += wave.getViewer().getId();
+					wave.getState().submitValue(choice, c);
+				}
+			</script>
+			<table id="ynmTable">
+				<tr>
+					<td id="yesCell">
+						<button id="yesBtn" onClick="vote('yes');">Y</button>
+					</td>
+					<td id="noCell">
+						<button id="noBtn" onClick="vote('no');">N</button>
+					</td>
+					<td id="maybeCell">
+						<button id="maybeBtn" onClick="vote('maybe');">M</button>
+					</td>
+				</tr>
+			</table>
+		]]> 
+	</Content>
+</Module>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<ModulePrefs title="Google Like Button">
+		<Require feature="wave"/>
+	</ModulePrefs>
+	<Content type="html">
+		<![CDATA[
+			<style type="text/css">
+				body {
+					font-family:Arial, sans-serif;
+					font-size:10pt;
+				}
+				button {
+					background-image:#EDEDED;
+					background-image:-moz-linear-gradient(top, White, rgb(221,221,221));
+					background-image:-webkit-gradient(linear, left top, left bottom, from(White), to(rgb(221,221,221)));
+					
+					border-style:solid;
+					border-width:1px;
+					border-color:rgb(171,171,171);
+					        border-radius:3px;
+					   -moz-border-radius:3px;
+					-webkit-border-radius:3px;
+					
+					        box-shadow:1px 1px 0px 0px white, inset 1px 1px 0px 0px white;
+					   -moz-box-shadow:1px 1px 0px 0px white, inset 1px 1px 0px 0px white;
+					-webkit-box-shadow:1px 1px 0px 0px white, inset 1px 1px 0px 0px white;
+					
+					color:Black;
+					font-family:Arial;
+					font-size:8.5pt;
+					text-align:center;
+					vertical-align:middle;
+					padding-left:6px;
+					padding-right:6px;
+					padding-top:3px;
+					padding-bottom:3px;
+					
+					       user-select:none;
+					  -moz-user-select:none;
+					-khtml-user-select:none;
+					
+					display:inline;
+					
+					cursor:pointer;
+				}
+				button:active {
+					background-color:#C3C3C3;
+					background-image:-moz-linear-gradient(top, rgb(170,170,170), rgb(229,229,229));
+					background-image:-webkit-gradient(linear, left top, left bottom, from(rgb(170,170,170)), to(rgb(229,229,229)));
+					
+					        box-shadow:1px 1px 0px 0px white;
+					   -moz-box-shadow:1px 1px 0px 0px white;
+					-webkit-box-shadow:1px 1px 0px 0px white;
+				}
+				#likeBtn {
+					height:24px;
+					padding-left:3px;
+					margin-left:0px;
+				}
+				#likeImg {
+					vertical-align:middle;
+				}
+				
+				.link {
+					/*color:#46C;*/ /* slightly darker than Greader like link color */
+					color:#003EA8; /* wave link color */
+					text-decoration:underline;
+					cursor:pointer;
+				}
+				.gray {
+					color:#666;
+					text-decoration:none;
+					cursor:default;
+				}
+				#likers {
+					color:#666;
+					display:none;
+				}
+				.name {
+					color:#46C;
+					/*text-decoration:underline;
+					cursor:pointer;*/
+				}
+			</style>
+			<script type="text/javascript">
+				function init() {
+					if (wave && wave.isInWaveContainer()) {
+						wave.setStateCallback(stateUpdated);
+					}
+				}
+				gadgets.util.registerOnLoadHandler(init);
+				
+				function stateUpdated() {
+					var likers = wave.getState().get("likers", "");
+					
+					var liked = (likers.indexOf(wave.getViewer().getId()) != -1);
+					
+					if (liked) {
+						document.getElementById("likeBtn").setAttribute("onclick", "unlike();");
+						document.getElementById("likeBtn").title = "Click to un-like";
+						document.getElementById("likeImg").src = "https://mail.google.com/mail/pimages/2/up/like-selected.gif";
+						document.getElementById("likeTxt").innerHTML = "Un-like";
+					} else {
+						document.getElementById("likeBtn").setAttribute("onclick", "like();");
+						document.getElementById("likeBtn").title = "Click if you like this";
+						document.getElementById("likeImg").src = "https://mail.google.com/mail/pimages/2/up/like-deselected.gif";
+						document.getElementById("likeTxt").innerHTML = "Like";
+					}
+					
+					var total = 0;
+					
+					document.getElementById("likers_inside").innerHTML = "";
+					if (likers != "") {
+						likers = likers.split(",");
+						for (var i = 0; i < likers.length; i++) {
+							if (likers[i] != "") {
+								var likerElem = document.createElement("span");
+								likerElem.innerHTML = wave.getParticipantById(likers[i]).getDisplayName();
+								likerElem.title = likers[i];
+								document.getElementById("likers_inside").appendChild(likerElem);
+								if (i < likers.length - 1) {
+									document.getElementById("likers_inside").innerHTML += ", ";
+								}
+							}
+						}
+						total = likers.length;
+					}
+					document.getElementById("total_inside").innerHTML = total;
+					if (total == 1 || total == "1") {
+						document.getElementById("total_people").innerHTML = "person";
+					} else {
+						document.getElementById("total_people").innerHTML = "people";
+					}
+					
+					gadgets.window.adjustHeight();
+				}
+
+				function like() {
+					var likers = wave.getState().get("likers", "");
+					
+					if(likers.indexOf(wave.getViewer().getId()) == -1) { // stop if user already liked
+						if (likers != "") {
+							likers += ",";
+						}
+						likers += wave.getViewer().getId();
+						wave.getState().submitValue("likers", likers);
+					}
+				}
+				function unlike() {
+					var likers = wave.getState().get("likers", "");
+					
+					if(likers.indexOf(wave.getViewer().getId()) != -1) { // stop if user already unliked
+						likers = likers.replace(wave.getViewer().getId(), "");
+						likers = likers.replace(",,", ",");
+						if (likers.charAt(0) == ",") {
+							likers = likers.substring(1, likers.length);
+						} else if (likers.charAt(likers.length - 1) == ",") {
+							likers = likers.substring(0, likers.length - 1);
+						}
+						wave.getState().submitValue("likers", likers);
+					}
+				}
+				function showLikers() {
+					document.getElementById("likers").style.display = "inline";
+					document.getElementById("total").className = "gray";
+					gadgets.window.adjustHeight();
+				}
+				function hideLikers() {
+					document.getElementById("likers").style.display = "none";
+					document.getElementById("total").className = "link";
+					gadgets.window.adjustHeight();
+				}
+			</script>
+			<div>
+				<button id="likeBtn" onclick="like();" title="Click if you like this">
+					<img src="https://mail.google.com/mail/pimages/2/up/like-deselected.gif" id="likeImg"/>
+					<span id="likeTxt">Like</span>
+				</button>
+				<span id="total" class="link" onClick="showLikers();">
+					<span id="total_inside">0</span>
+					<span id="total_people">people</span>
+					liked this</span>
+				<span id="likers">
+					-
+					<span id="likers_inside"></span>
+					-
+					<span class="link" onclick="hideLikers();">Hide</span>
+				</span>
+			</div>
+		]]> 
+	</Content>
+</Module>

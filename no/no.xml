@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<ModulePrefs title="Instant No Button" height="194" width="256">
+		<Require feature="wave"/>
+	</ModulePrefs>
+	<Content type="html">
+		<![CDATA[
+			<style type="text/css">
+				body {
+					font-family:Arial, sans-serif;
+					font-size:10pt;
+				}
+				#main {
+					width:256px;
+				}
+				#noBtn {
+					background-color:#C00;
+					background:-webkit-linear-gradient(top, #AE0D0D, #540200);
+					background:   -moz-linear-gradient(top, #AE0D0D, #540200);
+					background:    -ms-linear-gradient(top, #AE0D0D, #540200);
+					background:     -o-linear-gradient(top, #AE0D0D, #540200);
+					background:        linear-gradient(top, #AE0D0D, #540200);
+					
+					border-style:outset;
+					border-width:1px;
+					border-color:#660000;
+					-webkit-border-radius:3px;
+					   -moz-border-radius:3px;
+					        border-radius:3px;
+					
+					color:white;
+					font-family:Arial;
+					font-size:12pt;
+					text-align:center;
+					vertical-align:middle;
+					padding-left:6px;
+					padding-right:6px;
+					padding-top:3px;
+					padding-bottom:3px;
+					
+					 -khtml-user-select:none;
+					-webkit-user-select:none;
+					   -moz-user-select:none;
+					        user-select:none;
+					
+					cursor:pointer;
+				}
+				#noBtn:active {
+					background-color:#C3C3C3;
+					background:-webkit-linear-gradient(top, #620000, #870000);
+					background:   -moz-linear-gradient(top, #620000, #870000);
+					background:    -ms-linear-gradient(top, #620000, #870000);
+					background:     -o-linear-gradient(top, #620000, #870000);
+					background:        linear-gradient(top, #620000, #870000);
+					
+					border-style:inset;
+				}
+				
+				.link {
+					/*color:#46C;*/ /* slightly darker than Greader like link color */
+					color:#003EA8; /* wave link color */
+					text-decoration:underline;
+					cursor:pointer;
+				}
+			</style>
+			<script type="text/javascript">
+				function init() {
+					if (wave && wave.isInWaveContainer()) {
+						if (navigator.userAgent.toLowerCase.indexOf("firefox") != -1) {
+							document.getElementById("noSound").src = "http://mysite.verizon.net/zmyaro/projects/wave/gadgets/no/no.ogg";
+							gadgets.window.adjustWidth(256);
+						}
+					}
+				}
+				function playNo() {
+					document.getElementById("noSound").play();
+				}
+				gadgets.util.registerOnLoadHandler(init);
+			</script>
+			<div id="main">
+				<img src="http://www.nooooooooooooooo.com/vader.jpg" style="width:233px;height:160px;" alt="NOOOOOOOOOOOOOOO"/>
+				<br/>
+				<button onclick="playNo();" id="noBtn">PRESS IN DIRE SITUATIONS</button>
+				<audio src="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/no/no.mp3" id="noSound"></audio>
+				<br/>
+			</div>
+		]]> 
+	</Content>
+</Module>

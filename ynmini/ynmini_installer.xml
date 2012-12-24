@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension
+	name="Yes/No/Mini Gadget"
+	thumbnailUrl="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/ynmini_120x120.png"
+	description="A miniature version of the Yes/No/Maybe gadget."
+	version="4"
+>
+	<author name="Zachary 'Gamer_Z.' Yaro"/>
+	<menuHook
+		location="toolbar"
+		text="Insert Yes/No/Mini Gadget"
+		iconUrl="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/ynmini_icon.png"
+	>
+		<insertGadget url="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/ynmini.xml"/>
+	</menuHook>
+</extension>
