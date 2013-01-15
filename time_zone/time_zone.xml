@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-	<ModulePrefs title="Time Zane Gadget" width="355">
+	<ModulePrefs title="Time Zane Gadget" width="355" author="Zachary “Gamer_Z.” Yaro" author_email="zmyaro@gmail.com">
 		<Require feature="wave"/>
 		<Require feature="dynamic-height"/>
 	</ModulePrefs>

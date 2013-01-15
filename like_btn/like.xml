@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-	<ModulePrefs title="Google Like Button">
+	<ModulePrefs title="Google Like Button" author="Zachary “Gamer_Z.” Yaro" author_email="zmyaro@gmail.com">
 		<Require feature="wave"/>
 	</ModulePrefs>
 	<Content type="html">

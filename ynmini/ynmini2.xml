@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-	<ModulePrefs title="Yes/No/Mini" height="34">
+	<ModulePrefs title="Yes/No/Mini" height="34" author="Zachary “Gamer_Z.” Yaro" author_email="zmyaro@gmail.com">
 		<Require feature="wave"/>
 	</ModulePrefs>
 	<Content type="html">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-	<ModulePrefs title="Instant No Button" height="194" width="256">
+	<ModulePrefs title="Instant No Button" height="194" width="256" author="Zachary “Gamer_Z.” Yaro" author_email="zmyaro@gmail.com">
 		<Require feature="wave"/>
 	</ModulePrefs>
 	<Content type="html">
