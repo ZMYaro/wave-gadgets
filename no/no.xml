@@ -81,7 +81,7 @@
 				<img src="http://www.nooooooooooooooo.com/vader.jpg" style="width:233px;height:160px;" alt="NOOOOOOOOOOOOOOO"/>
 				<br/>
 				<button onclick="playNo();" id="noBtn">PRESS IN DIRE SITUATIONS</button>
-				<audio src="http://mysite.verizon.net/zmyaro/projects/wave/gadgets/no/no.mp3" id="noSound"></audio>
+				<audio src="http://zmyaro.com/projects/wave/gadgets/no.mp3" id="noSound"></audio>
 				<br/>
 			</div>
 		]]> 
