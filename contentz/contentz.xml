@@ -82,342 +82,400 @@
 			<script type="text/javascript" src="http://wave-api.appspot.com/public/wave.js"></script>
 			<!--<script type="text/javascript" src="http://zmyaro.com/projects/wave/gadgets/embedscript.js"></script>-->
 			<script type="text/javascript">
-				var types = {
-					audio: {
-						name: "Audio",
-						options: {
-							audio: {
-								name: "Audio by URL",
-								exampleURL: "http://example.com/myaudio.mp3",
-								//urlCheck: /https?:\/\/.*\/.*/i,
-								getEmbedData: function(url) {
-									return "<audio src=\"" + url + "\" width=\"300\" controls>You cannot hear this because your browser does not support HTML5 audio.</audio>";
-								},
-								oEmbedURL: null,
-								defaultWidth: 300,
-								defaultHeight: 30,
-								isDefault: false
-							},
-							soundcloud: {
-								name: "SoundCloud",
-								exampleURL: "http://soundcloud.com/username/sound-name",
-								urlCheck: /https?:\/\/(soundcloud\.com\/.*|soundcloud\.com\/.*\/.*|soundcloud\.com\/.*\/sets\/.*|soundcloud\.com\/groups\/.*|snd\.sc\/.*)/i,
-								getEmbedData: null,
-								oEmbedURL: "http://soundcloud.com/oembed?format=json&url=%u",
-								defaultWidth: 550,
-								defaultHeight: 300,
-								isDefault: true
-							}
-						}
-					},
-					video: {
-						name: "Video",
-						options: {
-							dailymotion: {
-								name: "DailyMotion",
-								exampleURL: "http://www.dailymotion.com/video/abcdef_video-name",
-								urlCheck: /https?:\/\/(.*\.dailymotion\.com\/video\/.*|.*\.dailymotion\.com\/.*\/video\/.*)/i,
-								getEmbedData: function(url) {
-									var vidIDRegex = /dailymotion\.com\/video\/(\w+)_.*$/;
-									var vidID;
-									if(!vidIDRegex.test(url)) {
-										return null;
-									} else {
-										vidID = vidIDRegex.exec(url)[1];
-									}
-									return "<iframe frameborder=\"0\" width=\"480\" height=\"270\" src=\"http://www.dailymotion.com/embed/video/" + vidID + "\"></iframe>";
-								},
-								oEmbedURL: "http://www.dailymotion.com/services/oembed?format=json&url=%u",
-								defaultWidth: 480,
-								defaultHeight: 270,
-								isDefault: false
-							},
-							twitch: {
-								name: "Twitch LiveStream",
-								exampleURL: "http://www.twitch.tv/username",
-								urlCheck: /https?:\/\/(.*twitch\.tv\/.*|.*twitch\.tv\/.*\/b\/.*)/i,
-								getEmbedData: function(url) {
-									var channelRegex = /\/(\w+$)/;
-									var channel;
-									if(!channelRegex.test(url)) {
-										return null;
-									} else {
-										channel = channelRegex.exec(url)[1];
-									}
-									return "<object type=\"application/x-shockwave-flash\" height=\"378\" width=\"620\" id=\"live_embed_player_flash\" data=\"http://www.twitch.tv/widgets/live_embed_player.swf?channel=" + channel + "\" bgcolor=\"#000000\"><param name=\"allowFullScreen\" value=\"true\" /><param name=\"allowScriptAccess\" value=\"always\" /><param name=\"allowNetworking\" value=\"all\" /><param name=\"movie\" value=\"http://www.twitch.tv/widgets/live_embed_player.swf\" /><param name=\"flashvars\" value=\"hostname=www.twitch.tv&channel=" + channel + "&start_volume=25\" /></object>";
-								},
-								oEmbedURL: null,
-								defaultWidth: 620,
-								defaultHeight: 378,
-								isDefault: false
-							},
-							video: {
-								name: "Video by URL",
-								exampleURL: "http://example.com/myvideo.webm",
-								//urlCheck: /https?:\/\/.*\/.*/i,
-								getEmbedData: function(url) {
-									return "<video src=\"" + url + "\" width=\"550\" height=\"400\" controls>You cannot see this video because your browser does not support HTML5 video.</video>";
-								},
-								oEmbedURL: null,
-								defaultWidth: 550,
-								defaultHeight: 400,
-								isDefault: false
-							},
-							vimeo: {
-								name: "Vimeo",
-								exampleURL: "http://vimeo.com/12345678",
-								urlCheck: /((https?:\/\/(www\.vimeo\.com\/groups\/.*\/videos\/.*|www\.vimeo\.com\/.*|vimeo\.com\/groups\/.*\/videos\/.*|vimeo\.com\/.*|vimeo\.com\/m\/#\/.*|player\.vimeo\.com\/.*))|(https:\/\/(www\.vimeo\.com\/.*|vimeo\.com\/.*|player\.vimeo\.com\/.*)))/i,
-								getEmbedData: function(url) {
-									var vidIDRegex = /\/(\w+$)/;
-									var vidID;
-									if(!vidIDRegex.test(url)) {
-										return null;
-									} else {
-										vidID = vidIDRegex.exec(url)[1];
-									}
-									//var oembedURL = "http://vimeo.com/api/oembed.json?url=" + encodeURIComponent(url);
-									return "<iframe src=\"http://player.vimeo.com/video/" + vidID + "?color=ffffff\" width=\"500\" height=\"213\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>";
-								},
-								oEmbedURL: "http://vimeo.com/api/oembed.json?url=%u",
-								defaultWidth: 500,
-								defaultHeight: 281,
-								isDefault: false
-							},
-							youtube: {
-								name: "YouTube",
-								exampleURL: "http://www.youtube.com/watch?v=AAAAAAAAAAA",
-								urlCheck: /((https?:\/\/(.*youtube\.com\/watch.*|.*\.youtube\.com\/v\/.*|youtu\.be\/.*|.*\.youtube\.com\/user\/.*|.*\.youtube\.com\/.*#.*\/.*|m\.youtube\.com\/watch.*|m\.youtube\.com\/index.*|.*\.youtube\.com\/profile.*|.*\.youtube\.com\/view_play_list.*|.*\.youtube\.com\/playlist.*))|(https:\/\/(.*youtube\.com\/watch.*|.*\.youtube\.com\/v\/.*)))/i,
-								getEmbedData: function(url) {
-									var vidIDRegex = /youtube\.com\/watch\?v=([^&]+)/;
-									var vidID;
-									if(!vidIDRegex.test(url)) {
-										return null;
-									} else {
-										vidID = vidIDRegex.exec(url)[1];
-									}
-									return "<iframe width=\"560\" height=\"315\" src=\"http://www.youtube.com/embed/" + vidID + "?rel=0\" frameborder=\"0\" allowfullscreen></iframe>";
-								},
-								oEmbedURL: "http://www.youtube.com/oembed?url=%u",
-								defaultWidth: 560,
-								defaultHeight: 315,
-								isDefault: true
-							}
-						}
-					}
-				};
-
-				var contentContainer;
-				var typeSelect;
-				var sourceSelect;
-				var urlInput;
-				var type = "video";
-				var source = "youtube";
-				var url;
-
-				function init() {
-					// confirm gadget is running in wave container
-					if(wave && wave.isInWaveContainer()) {
-						// get references to HTML elements
-						contentContainer = document.getElementById("content");
-						typeSelect = document.getElementById("type");
-						sourceSelect = document.getElementById("source");
-						urlInput = document.getElementById("url");
-						/*
-						// load state
-						var state = wave.getState();
-						if(state) { // avoid bug in which wave.getState() returns null
-							type = typeSelect.value = state.get("type", "video");
-							source = sourceSelect.value = state.get("source", "youtube");
-							url = urlInput.value = state.get("url", "");
-						}
-						*/
-						// add event listeners
-						typeSelect.addEventListener("change", typeChanged, false);
-						sourceSelect.addEventListener("change", sourceChanged, false);
-						urlInput.addEventListener("change", urlChanged, false);
-						wave.setModeCallback(modeChanged);
-						wave.setStateCallback(stateChanged);
-					}
-				}
-				gadgets.util.registerOnLoadHandler(init);
-
-				function stateChanged(newState) {
-					var newType = newState.get("type", type);
-					if(newType != type) {
-						//type = newType;
-						typeSelect.value = newType;
-						typeChanged();
-					}
-					var newSource = newState.get("source", source);
-					if(newSource != source) {
-						//source = newSource;
-						sourceSelect.value = newSource;
-						sourceChanged();
-					}
-					var newURL = newState.get("url", url);
-					if(newURL != url) {
-						//url = newURL;
-						urlInput.value = newURL;
-						urlChanged();
-					}
-				}
-				function modeChanged(newMode) {
-					if(newMode === wave.Mode.EDIT) {
-						document.getElementById("content").style.display = "none";
-						document.getElementById("settings").style.display = "block";
+var types = {
+	default: "video",
+	audio: {
+		name: "Audio",
+		default: "soundcloud",
+		options: {
+			audio: {
+				name: "Audio by URL",
+				exampleURL: "http://example.com/myaudio.mp3",
+				//urlCheck: /https?:\/\/.*\/.*/i,
+				getEmbedData: function(url) {
+					return "<audio src=\"" + url + "\" width=\"300\" controls>You cannot hear this because your browser does not support HTML5 audio.</audio>";
+				},
+				oEmbedURL: null,
+				defaultWidth: 300,
+				defaultHeight: 30
+			},
+			soundcloud: {
+				name: "SoundCloud",
+				exampleURL: "http://soundcloud.com/username/sound-name",
+				urlCheck: /https?:\/\/(soundcloud\.com\/.*|soundcloud\.com\/.*\/.*|soundcloud\.com\/.*\/sets\/.*|soundcloud\.com\/groups\/.*|snd\.sc\/.*)/i,
+				getEmbedData: null,
+				oEmbedURL: "http://soundcloud.com/oembed?format=json&url=%u",
+				defaultWidth: 550,
+				defaultHeight: 300
+			}
+		}
+	},
+	video: {
+		name: "Video",
+		default: "youtube",
+		options: {
+			collegehumor: {
+				name: "CollegeHumor",
+				exampleURL: "http://www.collegehumor.com/video/1234567/video-name",
+				urlCheck: /https?:\/\/(collegehumor\.com\/video:.*|collegehumor\.com\/video\/.*|www\.collegehumor\.com\/video:.*|www\.collegehumor\.com\/video\/.*)/i,
+				oEmbedURL: "http://www.collegehumor.com/oembed.json?url=%u"
+			},
+			dailymotion: {
+				name: "DailyMotion",
+				exampleURL: "http://www.dailymotion.com/video/abcdef_video-name",
+				urlCheck: /https?:\/\/(.*\.dailymotion\.com\/video\/.*|.*\.dailymotion\.com\/.*\/video\/.*)/i,
+				getEmbedData: function(url) {
+					var vidIDRegex = /dailymotion\.com\/video\/(\w+)_.*$/i;
+					var vidID;
+					if(!vidIDRegex.test(url)) {
+						return null;
 					} else {
-						document.getElementById("settings").style.display = "none";
-
-						var delta = {};
-						var state = wave.getState();
-						if(state) { // avoid bug in which wave.getState() retuns null
-							if(type != state.get("type")) {
-								delta.type = type;
-							}
-							if(source != state.get("source")) {
-								delta.source = source;
-							}
-							if(url != state.get("url")) {
-								delta.url = url;
-							}
-							state.submitDelta(delta);
-						}
-
-						gadgets.window.adjustWidth(contentContainer.style.width);
-						gadgets.window.adjustHeight(contentContainer.style.height);
-
-						document.getElementById("content").style.display = "block";
-
+						vidID = vidIDRegex.exec(url)[1];
 					}
-				}
-				function typeChanged() {
-					var newType = typeSelect.value;
-					// stop if type has not actually changed
-					if(newType === type || newType === "") {
-						return;
-					}
-
-					// update JS value
-					type = newType;
-
-					// update source options
-					sourceSelect.innerHTML = "";
-					var srcTypes = types[newType].options;
-					for(var srcType in srcTypes) {
-						var newOption = document.createElement("option");
-						newOption.value = srcType;
-						newOption.innerHTML = srcTypes[srcType].name;
-						newOption.selected = srcTypes[srcType].isDefault;
-						sourceSelect.appendChild(newOption);
-					}
-
-					sourceChanged();
-				}
-				function sourceChanged() {
-					var newSource = sourceSelect.value;
-					// stop if source has not actually changed
-					if(newSource === source || newSource === "") {
-						return;
-					}
-
-					// update JS value
-					source = newSource;
-
-					var sourceData = types[type].options[newSource];
-					// update example URL
-					urlInput.value = "";
-					urlInput.placeholder = sourceData.exampleURL;
-					// update gadget size for new potential contents
-					contentContainer.style.width = sourceData.defaultWidth;
-					contentContainer.style.height = sourceData.defaultHeight;
-					gadgets.window.adjustWidth(sourceData.defaultWidth);
-					gadgets.window.adjustHeight(sourceData.defaultHeight < 82 ? 82 : sourceData.defaultHeight);
-
-					urlChanged();
-				}
-				function urlChanged() {
-					var newURL = urlInput.value;
-					// stop if URL has not actually changed
-					if(newURL === url) {
-						return;
-					}
-
-					// update JS value
-					url = newURL;
-
-					// update embed code
-					if(checkURL(url)) {
-						if(types[type].options[source].oEmbedURL) {
-							var oEmbedURL = types[type].options[source].oEmbedURL.replace("%u", encodeURIComponent(url));
-							gadgets.io.makeRequest(oEmbedURL, processOEmbedResponse);
-						} else {
-							var newEmbedData = types[type].options[source].getEmbedData(url);
-							if(!newEmbedData) {
-								contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
-								urlInput.style.backgroundColor = "#FFAAAA";
-							} else if(newEmbedData != contentContainer.innerHTML) {
-								contentContainer.innerHTML = newEmbedData;
-				
-								urlInput.style.backgroundColor = null;
-							}
-						}
+					return "<iframe frameborder=\"0\" width=\"480\" height=\"270\" src=\"http://www.dailymotion.com/embed/video/" + vidID + "\"></iframe>";
+				},
+				oEmbedURL: "http://www.dailymotion.com/services/oembed?format=json&url=%u",
+				defaultWidth: 480,
+				defaultHeight: 270
+			},
+			hulu: {
+				name: "Hulu",
+				exampleURL: "http://www.hulu.com/watch/12345/video-name",
+				urlCheck: /https?:\/\/(www\.hulu\.com\/watch.*|www\.hulu\.com\/w\/.*|www\.hulu\.com\/embed\/.*|hulu\.com\/watch.*|hulu\.com\/w\/.*)/i,
+				oEmbedURL: "http://www.hulu.com/api/oembed.json?url=%u"
+			},
+			metacafe: {
+				name: "Metacafe",
+				exampleURL: "http://www.metacafe.com/watch/12345678/video_name/",
+				urlCheck: /https?:\/\/(www\.metacafe\.com\/watch\/.*|www\.metacafe\.com\/w\/.*)/i,
+				getEmbedData: function(url) {
+					var vidIDRegex = /metacafe\.com\/watch\/(.*)\/?/i;
+					var vidID;
+					if(!vidIDRegex.test(url)) {
+						return null;
 					} else {
-						contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
-						urlInput.style.backgroundColor = "#FFAAAA";
-					}
-				}
-
-				/**
-				 * Checks if a given URL is valid for the current source type
-				 * @param {String} url - The URL to check
-				 * @returns {Boolean} - Whether the URL is valid
-				 */
-				function checkURL(url) {
-					if(types[type].options[source].urlCheck) {
-						return types[type].options[source].urlCheck.test(url);
-					}
-					return (/https?:\/\/.*\/.*/i).test(url);
-				}
-
-				/**
-				 * Processes the response from an asynchronous oEmbed API call
-				 * @param {Object} response
-				 */
-				function processOEmbedResponse(response) {
-					if(!response.data) {
-						contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
-						urlInput.style.backgroundColor = "#FFFFAA";
-					} else {
-						urlInput.style.backgroundColor = null;
-						var data = JSON.parse(response.data);
-						if(data.html != contentContainer.innerHTML) {
-							contentContainer.innerHTML = data.html;
-			
-							if(!data.width) {
-								contentContainer.style.width = types[type].options[source].defaultWidth + "px";
-								gadgets.window.adjustWidth(types[type].options[source].defaultWidth);
-							} else if(data.width === "100%") {
-								//contentContainer.style.width = "100%";
-								contentContainer.style.width = "600px";
-								gadgets.window.adjustWidth();
-							} else {
-								contentContainer.style.width = data.width + "px";
-								gadgets.window.adjustWidth(data.width);
-							}
-			
-							if(!data.height) {
-								contentContainer.style.height = types[type].options[source].defaultHeight + "px";
-								gadgets.window.adjustHeight(types[type].options[source].defaultHeight < 82 ? 82 : types[type].options[source].defaultHeight);
-							} else if(data.height === "100%") {
-								contentContainer.style.height = "100%";
-								gadgets.window.adjustHeight();
-							} else {
-								contentContainer.style.height = data.height + "px";
-								gadgets.window.adjustHeight(data.height);
-							}
+						vidID = vidIDRegex.exec(url)[1];
+						if(vidID.charAt(vidID.length - 1) === "/") {
+							vidID = vidID.substring(0, vidID.length - 1);
 						}
 					}
-				}
+					return "<embed flashVars=\"playerVars=autoPlay=no\" src=\"http://www.metacafe.com/fplayer/" + vidID + ".swf\" width=\"540\" height=\"304\" wmode=\"transparent\" allowFullScreen=\"true\" allowScriptAccess=\"always\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\" type=\"application/x-shockwave-flash\"></embed>";
+				},
+				defaultWidth: 540,
+				defaultHeight: 304
+			},
+			qik: {
+				name: "Qik",
+				exampleURL: "http://qik.com/video/123456",
+				urlCheck: /https?:\/\/(qik\.com\/video\/.*|qik\.com\/.*|qik\.ly\/.*)/i,
+				oEmbedURL: "http://qik.com/api/oembed.json?url=%u"
+			},
+			ted: {
+				name: "TED Talk",
+				exampleURL: "http://www.ted.com/talks/video_name.html",
+				urlCheck: /https?:\/\/(www\.ted\.com\/talks\/.*\.html.*|www\.ted\.com\/talks\/lang\/.*\/.*\.html.*|www\.ted\.com\/index\.php\/talks\/.*\.html.*|www\.ted\.com\/index\.php\/talks\/lang\/.*\/.*\.html.*)/i,
+				getEmbedData: function(url) {
+					var embedURL = url.replace("www", "embed");
+					return "<iframe src=\"" + embedURL + "\" width=\"560\" height=\"315\" frameborder=\"0\" scrolling=\"no\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>";
+				},
+				oEmbedURL: null,
+				defaultWidth: 560,
+				defaultHeight: 315
+			},
+			twitch: {
+				name: "Twitch LiveStream",
+				exampleURL: "http://www.twitch.tv/username",
+				urlCheck: /https?:\/\/(.*twitch\.tv\/.*|.*twitch\.tv\/.*\/b\/.*)/i,
+				getEmbedData: function(url) {
+					var channelRegex = /\/(\w+$)/;
+					var channel;
+					if(!channelRegex.test(url)) {
+						return null;
+					} else {
+						channel = channelRegex.exec(url)[1];
+					}
+					return "<object type=\"application/x-shockwave-flash\" height=\"378\" width=\"620\" id=\"live_embed_player_flash\" data=\"http://www.twitch.tv/widgets/live_embed_player.swf?channel=" + channel + "\" bgcolor=\"#000000\"><param name=\"allowFullScreen\" value=\"true\" /><param name=\"allowScriptAccess\" value=\"always\" /><param name=\"allowNetworking\" value=\"all\" /><param name=\"movie\" value=\"http://www.twitch.tv/widgets/live_embed_player.swf\" /><param name=\"flashvars\" value=\"hostname=www.twitch.tv&channel=" + channel + "&start_volume=25\" /></object>";
+				},
+				oEmbedURL: null,
+				defaultWidth: 620,
+				defaultHeight: 378
+			},
+			video: {
+				name: "Video by URL",
+				exampleURL: "http://example.com/myvideo.webm",
+				//urlCheck: /https?:\/\/.*\/.*/i,
+				getEmbedData: function(url) {
+					return "<video src=\"" + url + "\" width=\"550\" height=\"400\" controls>You cannot see this video because your browser does not support HTML5 video.</video>";
+				},
+				oEmbedURL: null,
+				defaultWidth: 550,
+				defaultHeight: 400
+			},
+			vimeo: {
+				name: "Vimeo",
+				exampleURL: "http://vimeo.com/12345678",
+				urlCheck: /((https?:\/\/(www\.vimeo\.com\/groups\/.*\/videos\/.*|www\.vimeo\.com\/.*|vimeo\.com\/groups\/.*\/videos\/.*|vimeo\.com\/.*|vimeo\.com\/m\/#\/.*|player\.vimeo\.com\/.*))|(https:\/\/(www\.vimeo\.com\/.*|vimeo\.com\/.*|player\.vimeo\.com\/.*)))/i,
+				getEmbedData: function(url) {
+					var vidIDRegex = /\/(\w+$)/i;
+					var vidID;
+					if(!vidIDRegex.test(url)) {
+						return null;
+					} else {
+						vidID = vidIDRegex.exec(url)[1];
+					}
+					//var oembedURL = "http://vimeo.com/api/oembed.json?url=" + encodeURIComponent(url);
+					return "<iframe src=\"http://player.vimeo.com/video/" + vidID + "?color=ffffff\" width=\"500\" height=\"213\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>";
+				},
+				oEmbedURL: "http://vimeo.com/api/oembed.json?url=%u",
+				defaultWidth: 500,
+				defaultHeight: 281
+			},
+			youtube: {
+				name: "YouTube",
+				exampleURL: "http://www.youtube.com/watch?v=ABCDEFGHIJK",
+				urlCheck: /((https?:\/\/(.*youtube\.com\/watch.*|.*\.youtube\.com\/v\/.*|youtu\.be\/.*|.*\.youtube\.com\/user\/.*|.*\.youtube\.com\/.*#.*\/.*|m\.youtube\.com\/watch.*|m\.youtube\.com\/index.*|.*\.youtube\.com\/profile.*|.*\.youtube\.com\/view_play_list.*|.*\.youtube\.com\/playlist.*))|(https:\/\/(.*youtube\.com\/watch.*|.*\.youtube\.com\/v\/.*)))/i,
+				getEmbedData: function(url) {
+					var vidIDRegex = /youtube\.com\/watch\?v=([^&]+)/i;
+					var vidID;
+					if(!vidIDRegex.test(url)) {
+						return null;
+					} else {
+						vidID = vidIDRegex.exec(url)[1];
+					}
+					return "<iframe width=\"560\" height=\"315\" src=\"http://www.youtube.com/embed/" + vidID + "?rel=0\" frameborder=\"0\" allowfullscreen></iframe>";
+				},
+				oEmbedURL: "http://www.youtube.com/oembed?url=%u",
+				defaultWidth: 560,
+				defaultHeight: 315
+			}
+		}
+	}
+};
+
+var contentContainer;
+var typeSelect;
+var sourceSelect;
+var urlInput;
+var type;
+var source;
+var url;
+
+function init() {
+	// confirm gadget is running in wave container
+	if(wave && wave.isInWaveContainer()) {
+		// get references to HTML elements
+		contentContainer = document.getElementById("content");
+		typeSelect = document.getElementById("type");
+		sourceSelect = document.getElementById("source");
+		urlInput = document.getElementById("url");
+		
+		/*
+		// load state
+		var state = wave.getState();
+		if(state) { // avoid bug in which wave.getState() returns null
+			type = typeSelect.value = state.get("type", "video");
+			source = sourceSelect.value = state.get("source", "youtube");
+			url = urlInput.value = state.get("url", "");
+		}
+		*/
+		// add DOM event listeners
+		typeSelect.addEventListener("change", typeChanged, false);
+		sourceSelect.addEventListener("change", sourceChanged, false);
+		urlInput.addEventListener("change", urlChanged, false);
+		
+		// add wave event listeners
+		wave.setModeCallback(modeChanged);
+		wave.setStateCallback(stateChanged);
+	}
+}
+gadgets.util.registerOnLoadHandler(init);
+
+function stateChanged(newState) {
+	console.log("aoeu");
+	var newType = newState.get("type", type);
+	console.log(newType);
+	if(newType === null) {
+		newType = types.default;
+	}
+	console.log(newType);
+	if(newType !== type) {
+		//type = newType;
+		typeSelect.value = newType;
+		typeChanged();
+	}
+	console.log(type);
+	console.log("htns");
+	var newSource = newState.get("source", source);
+	if(newSource !== source) {
+		//source = newSource;
+		sourceSelect.value = newSource;
+		sourceChanged();
+	}
+	var newURL = newState.get("url", url);
+	if(newURL !== url) {
+		//url = newURL;
+		urlInput.value = newURL;
+		urlChanged();
+	}
+}
+function modeChanged(newMode) {
+	if(newMode === wave.Mode.EDIT) {
+		document.getElementById("content").style.display = "none";
+		document.getElementById("settings").style.display = "block";
+	} else {
+		document.getElementById("settings").style.display = "none";
+
+		var delta = {};
+		var state = wave.getState();
+		if(state) { // avoid bug in which wave.getState() retuns null
+			if(type !== state.get("type")) {
+				delta.type = type;
+			}
+			if(source !== state.get("source")) {
+				delta.source = source;
+			}
+			if(url !== state.get("url")) {
+				delta.url = url;
+			}
+			state.submitDelta(delta);
+		}
+
+		gadgets.window.adjustWidth(contentContainer.style.width);
+		gadgets.window.adjustHeight(contentContainer.style.height);
+
+		document.getElementById("content").style.display = "block";
+
+	}
+}
+function typeChanged() {
+	var newType = typeSelect.value;
+	// stop if type has not actually changed
+	if(newType === type || newType === "") {
+		return;
+	}
+
+	// update JS value
+	type = newType;
+
+	// update source options
+	sourceSelect.innerHTML = "";
+	var srcTypes = types[newType].options;
+	for(var srcType in srcTypes) {
+		var newOption = document.createElement("option");
+		newOption.value = srcType;
+		newOption.innerHTML = srcTypes[srcType].name;
+		newOption.selected = (srcType === types[newType].default);
+		console.log(types[newType].default + " | " + srcType);
+		sourceSelect.appendChild(newOption);
+	}
+
+	sourceChanged();
+}
+function sourceChanged() {
+	var newSource = sourceSelect.value;
+	// stop if source has not actually changed
+	if(newSource === source || newSource === "") {
+		return;
+	}
+
+	// update JS value
+	source = newSource;
+
+	var sourceData = types[type].options[newSource];
+	// update example URL
+	//urlInput.value = "";
+	urlInput.placeholder = sourceData.exampleURL;
+	// update gadget size for new potential contents
+	contentContainer.style.width = sourceData.defaultWidth;
+	contentContainer.style.height = sourceData.defaultHeight;
+	gadgets.window.adjustWidth(sourceData.defaultWidth);
+	gadgets.window.adjustHeight(sourceData.defaultHeight < 82 ? 82 : sourceData.defaultHeight);
+
+	urlChanged();
+}
+function urlChanged() {
+	var newURL = urlInput.value;
+	// stop if URL has not actually changed
+	if(newURL === url) {
+		return;
+	}
+
+	// update JS value
+	url = newURL;
+
+	// update embed code
+	if(checkURL(url)) {
+		if(types[type].options[source].oEmbedURL) {
+			var oEmbedURL = types[type].options[source].oEmbedURL.replace("%u", encodeURIComponent(url));
+			gadgets.io.makeRequest(oEmbedURL, processOEmbedResponse);
+		} else {
+			var newEmbedData = types[type].options[source].getEmbedData(url);
+			if(!newEmbedData) {
+				contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
+				urlInput.style.backgroundColor = "#FFAAAA";
+			} else if(newEmbedData !== contentContainer.innerHTML) {
+				contentContainer.innerHTML = newEmbedData;
+
+				urlInput.style.backgroundColor = null;
+			}
+		}
+	} else {
+		contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
+		urlInput.style.backgroundColor = "#FFAAAA";
+	}
+}
+
+/**
+ * Checks if a given URL is valid for the current source type
+ * @param {String} url - The URL to check
+ * @returns {Boolean} - Whether the URL is valid
+ */
+function checkURL(url) {
+	if(types[type].options[source].urlCheck) {
+		return types[type].options[source].urlCheck.test(url);
+	}
+	return (/https?:\/\/.*\/.*/i).test(url);
+}
+
+/**
+ * Processes the response from an asynchronous oEmbed API call
+ * @param {Object} response
+ */
+function processOEmbedResponse(response) {
+	if(!response.data) {
+		contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
+		urlInput.style.backgroundColor = "#FFFFAA";
+	} else {
+		urlInput.style.backgroundColor = null;
+		var data = JSON.parse(response.data);
+		if(data.html !== contentContainer.innerHTML) {
+			contentContainer.innerHTML = data.html;
+
+			if(!data.width) {
+				contentContainer.style.width = types[type].options[source].defaultWidth + "px";
+				gadgets.window.adjustWidth(types[type].options[source].defaultWidth);
+			} else if(data.width === "100%") {
+				//contentContainer.style.width = "100%";
+				contentContainer.style.width = "600px";
+				gadgets.window.adjustWidth();
+			} else {
+				contentContainer.style.width = data.width + "px";
+				gadgets.window.adjustWidth(data.width);
+			}
+
+			if(!data.height) {
+				contentContainer.style.height = types[type].options[source].defaultHeight + "px";
+				gadgets.window.adjustHeight(types[type].options[source].defaultHeight < 82 ? 82 : types[type].options[source].defaultHeight);
+			} else if(data.height === "100%") {
+				contentContainer.style.height = "100%";
+				gadgets.window.adjustHeight();
+			} else {
+				contentContainer.style.height = data.height + "px";
+				gadgets.window.adjustHeight(data.height);
+			}
+		}
+	}
+}
 			</script>
 			<div id="settings">
 				<select name="type" id="type">
@@ -426,7 +484,12 @@
 				</select>
 				<br />
 				<select name="source" id="source">
+					<option value="collegehumor">CollegeHumor</option>
 					<option value="dailymotion">DailyMotion</option>
+					<option value="hulu">Hulu</option>
+					<option value="metacafe">Metacafe</option>
+					<option value="qik">Qik</option>
+					<option value="ted">TED Talk</option>
 					<option value="twitch">Twitch Livestream</option>
 					<option value="video">Video by URL</option>
 					<option value="vimeo">Vimeo</option>
