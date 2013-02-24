@@ -82,6 +82,9 @@
 			<script type="text/javascript" src="http://wave-api.appspot.com/public/wave.js"></script>
 			<!--<script type="text/javascript" src="http://zmyaro.com/projects/wave/gadgets/embedscript.js"></script>-->
 			<script type="text/javascript">
+if(!String.prototype.trim) {
+	String.prototype.trim = function() {return this.replace(/^\s+|\s+$/g, "");};
+}
 var types = {
 	default: "video",
 	audio: {
@@ -291,20 +294,15 @@ function init() {
 gadgets.util.registerOnLoadHandler(init);
 
 function stateChanged(newState) {
-	console.log("aoeu");
 	var newType = newState.get("type", type);
-	console.log(newType);
 	if(newType === null) {
 		newType = types.default;
 	}
-	console.log(newType);
 	if(newType !== type) {
 		//type = newType;
 		typeSelect.value = newType;
 		typeChanged();
 	}
-	console.log(type);
-	console.log("htns");
 	var newSource = newState.get("source", source);
 	if(newSource !== source) {
 		//source = newSource;
@@ -323,6 +321,7 @@ function modeChanged(newMode) {
 		document.getElementById("content").style.display = "none";
 		document.getElementById("settings").style.display = "block";
 	} else {
+		urlChanged();
 		document.getElementById("settings").style.display = "none";
 
 		var delta = {};
@@ -353,10 +352,10 @@ function typeChanged() {
 	if(newType === type || newType === "") {
 		return;
 	}
-
+	
 	// update JS value
 	type = newType;
-
+	
 	// update source options
 	sourceSelect.innerHTML = "";
 	var srcTypes = types[newType].options;
@@ -365,10 +364,9 @@ function typeChanged() {
 		newOption.value = srcType;
 		newOption.innerHTML = srcTypes[srcType].name;
 		newOption.selected = (srcType === types[newType].default);
-		console.log(types[newType].default + " | " + srcType);
 		sourceSelect.appendChild(newOption);
 	}
-
+	
 	sourceChanged();
 }
 function sourceChanged() {
@@ -390,11 +388,15 @@ function sourceChanged() {
 	contentContainer.style.height = sourceData.defaultHeight;
 	gadgets.window.adjustWidth(sourceData.defaultWidth);
 	gadgets.window.adjustHeight(sourceData.defaultHeight < 82 ? 82 : sourceData.defaultHeight);
-
+	
+	url = ""; // Reset the URL so the urlChanged function actually gets run
 	urlChanged();
 }
 function urlChanged() {
 	var newURL = urlInput.value;
+	// Trim extra whitespace from the user's input
+	newURL = newURL.trim();
+	
 	// stop if URL has not actually changed
 	if(newURL === url) {
 		return;
