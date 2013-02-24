@@ -1,4 +1,4 @@
-wave-gadgets
+Wave Gadgets
 ============
 
 These are various wave gadgets I have decided to open-source.  You may use the code as a reference, but please _do not_ blatantly copy chunks of my code without my permission.
