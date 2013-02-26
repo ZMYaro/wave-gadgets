@@ -503,6 +503,6 @@ function processOEmbedResponse(response) {
 			<div id="content" style="width: 560; height: 315">
 				<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>
 			</div>
-		]]> 
+		]]>
 	</Content>
 </Module>
