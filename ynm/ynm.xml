@@ -36,7 +36,7 @@
 					   -moz-box-shadow: 0px 0px 1px orange; /* Gecko (FF, SeaMonkey) */
 					-webkit-box-shadow: 0px 0px 1px orange; /* WebKit (Safari, Chrome) */
 				}
-				#yesBtn {
+				#yBtn {
 					border-color: #527B09;
 					background-color: #9B0;
 					background: -webkit-gradient(linear, left top, left bottom, from(#92B009), to(#5E6F28));
@@ -46,7 +46,7 @@
 					background:      -o-linear-gradient(#92B009, #5E6F28);
 					background:         linear-gradient(#92B009, #5E6F28);
 				}
-				#yesBtn:active {
+				#yBtn:active {
 					background: -webkit-gradient(linear, left top, left bottom, from(#4A5900), to(#657C00));
 					background: -webkit-linear-gradient(#4A5900, #657C00);
 					background:    -moz-linear-gradient(#4A5900, #657C00);
@@ -54,12 +54,12 @@
 					background:      -o-linear-gradient(#4A5900, #657C00);
 					background:         linear-gradient(#4A5900, #657C00);
 				}
-				#yesBtn:disabled {
+				#yBtn:disabled {
 					background-color: #5E6F28;
 					background-image: none;
 					cursor: default;
 				}
-				#noBtn {
+				#nBtn {
 					border-color: #600;
 					background-color: #C00;
 					background: -webkit-gradient(linear, left top, left bottom, from(#AE0D0D), to(#540200));
@@ -69,7 +69,7 @@
 					background:      -o-linear-gradient(#AE0D0D, #540200);
 					background:         linear-gradient(#AE0D0D, #540200);
 				}
-				#noBtn:active {
+				#nBtn:active {
 					background: -webkit-gradient(linear, left top, left bottom, from(#620000), to(#870000));
 					background: -webkit-linear-gradient(#620000, #870000);
 					background:    -moz-linear-gradient(#620000, #870000);
@@ -77,12 +77,12 @@
 					background:      -o-linear-gradient(#620000, #870000);
 					background:         linear-gradient(#620000, #870000);
 				}
-				#noBtn:disabled {
+				#nBtn:disabled {
 					background-color: #690000;
 					background-image: none;
 					cursor: default;
 				}
-				#maybeBtn {
+				#mBtn {
 					border-color: #7F6500;
 					background-color: #FC0;
 					background: -webkit-gradient(linear, left top, left bottom, from(#ECBF19), to(#9E8315));
@@ -92,7 +92,7 @@
 					background:      -o-linear-gradient(#ECBF19, #9E8315);
 					background:         linear-gradient(#ECBF19, #9E8315);
 				}
-				#maybeBtn:active {
+				#mBtn:active {
 					background: -webkit-gradient(linear, left top, left bottom, from(#7A6100), to(#A98400));
 					background: -webkit-linear-gradient(#7A6100, #A98400);
 					background:    -moz-linear-gradient(#7A6100, #A98400);
@@ -100,7 +100,7 @@
 					background:      -o-linear-gradient(#7A6100, #A98400);
 					background:         linear-gradient(#7A6100, #A98400);
 				}
-				#maybeBtn:disabled {
+				#mBtn:disabled {
 					background-color: #9E8315;
 					background-image: none;
 					cursor: default;
@@ -162,57 +162,76 @@
 				}
 				gadgets.util.registerOnLoadHandler(init);
 				
+				function convertOldVotes(choice) {
+					var oldVotes = wave.getState().get(choice);
+					if(oldVotes) {
+						oldVotes = JSON.parse(oldVotes);
+						var delta = {};
+						// Erase the old vote state.
+						delta[choice] = null;
+						// Convert “yes” to “y”, etc.
+						choice = choice.charAt(0);
+						
+						// Convert the old votes to separate state entries.
+						for(var i = 0; i < oldVotes.length; i++) {
+							delta[oldVotes[i] + ":answer"] = choice;
+						}
+						// Submit the new votes.
+						wave.getState().submitDelta(delta);
+						
+					}
+				}
+				
 				function stateUpdated() {
-					var y = JSON.parse(wave.getState().get("yes", "[]"));
-					var n = JSON.parse(wave.getState().get("no", "[]"));
-					var m = JSON.parse(wave.getState().get("maybe", "[]"));
+					convertOldVotes("yes");
+					convertOldVotes("no");
+					convertOldVotes("maybe");
 					
-					console.log(y);
-					console.log(n);
-					console.log(m);
+					//wave.setSnippet("Yes:" + y.length + " No:" + n.length + " Maybe:" + m.length);
 					
-					// Set the totals
-					wave.setSnippet("Yes:" + y.length + " No:" + n.length + " Maybe:" + m.length);
-					document.getElementById("yesBtn").innerHTML = "Yes (" + y.length + ")";
-					document.getElementById("noBtn").innerHTML = "No (" + n.length + ")";
-					document.getElementById("maybeBtn").innerHTML = "Maybe (" + m.length + ")";
+					var answers = {
+						"y": [],
+						"n": [],
+						"m": []
+					};
 					
-					// Set the lists
-					var yesVoters = document.getElementById("yesVoters");
-					yesVoters.innerHTML = "";
-					for(var i = 0; i < y.length; i++) {
-						if(y[i]) {
-							yesVoters.appendChild(createVoterItem(y[i]));
+					var keys = wave.getState().getKeys();
+					var answerRegex = /(.*):answer$/;
+					for(var i = 0; i < keys.length; i++) {
+						var user = answerRegex.exec(keys[i]);
+						// If the key is for an answer and the answer has an acceptable value,...
+						if(user && wave.getState().get(keys[i]) in answers) {
+							// ...get the answer,...
+							var answer = wave.getState().get(keys[i]);
+							// ...and add the answer to its array.
+							answers[answer].push(user[1]);
 						}
 					}
-					var noVoters = document.getElementById("noVoters");
-					noVoters.innerHTML = "";
-					for(var i = 0; i < n.length; i++) {
-						if(n[i]) {
-							noVoters.appendChild(createVoterItem(n[i]));
-						}
-					}
-					var maybeVoters = document.getElementById("maybeVoters");
-					maybeVoters.innerHTML = "";
-					for(var i = 0; i < m.length; i++) {
-						if(m[i]) {
-							maybeVoters.appendChild(createVoterItem(m[i]));
+					
+					for(choice in answers) {
+						// Set the total.
+						document.getElementById(choice + "Count").innerHTML = "(" + answers[choice].length + ")";
+					
+						// Set the lists
+						var voters = document.getElementById(choice + "Voters");
+						voters.innerHTML = "";
+						for(var i = 0; i < answers[choice].length; i++) {
+							if(answers[choice][i]) {
+								voters.appendChild(createVoterItem(answers[choice][i]));
+							}
 						}
 					}
 					
 					//gadgets.window.adjustWidth();
 					gadgets.window.adjustHeight();
 					
-					document.getElementById("yesBtn").disabled = false;
-					document.getElementById("noBtn").disabled = false;
-					document.getElementById("maybeBtn").disabled = false;
+					document.getElementById("yBtn").disabled = false;
+					document.getElementById("nBtn").disabled = false;
+					document.getElementById("mBtn").disabled = false;
 					
-					if(y.indexOf(wave.getViewer().getId()) != -1) {
-						document.getElementById("yesBtn").disabled = true;
-					} else if(n.indexOf(wave.getViewer().getId()) != -1) {
-						document.getElementById("noBtn").disabled = true;
-					} else if(m.indexOf(wave.getViewer().getId()) != -1) {
-						document.getElementById("maybeBtn").disabled = true;
+					var viewerAnswer = wave.getState().get(wave.getViewer().getId() + ":answer");
+					if(viewerAnswer) {
+						document.getElementById(viewerAnswer + "Btn").disabled = true;
 					}
 				}
 				function createVoterItem(id) {
@@ -233,51 +252,25 @@
 					
 
 				function vote(choice) {
-					var y = JSON.parse(wave.getState().get("yes", "[]"));
-					var n = JSON.parse(wave.getState().get("no", "[]"));
-					var m = JSON.parse(wave.getState().get("maybe", "[]"));
+					var voteKey = wave.getViewer().getId();
+					voteKey += ":answer";
 					
-					var lastVote = "none";
-					if(y.indexOf(wave.getViewer().getId()) !== -1) {
-						lastVote = "yes";
-					} else if(n.indexOf(wave.getViewer().getId()) !== -1) {
-						lastVote = "no";
-					} else if(m.indexOf(wave.getViewer().getId()) !== -1) {
-						lastVote = "maybe";
-					}
-					
-					if (lastVote != "none") {
-						var l = JSON.parse(wave.getState().get(lastVote, "[]"));
-						l.splice(l.indexOf(wave.getViewer().getId()), 1);
-						wave.getState().submitValue(lastVote, JSON.stringify(l));
-					}
-					
-					var c;
-					if (choice == "yes") {
-						c = wave.getState().get("yes", "[]");
-					} else if (choice == "no") {
-						c = wave.getState().get("no", "[]");
-					} else if (choice == "maybe") {
-						c = wave.getState().get("maybe", "[]");
-					}
-					c = JSON.parse(c);
-					c.push(wave.getViewer().getId());
-					wave.getState().submitValue(choice, JSON.stringify(c));
+					wave.getState().submitValue(voteKey, choice);
 				}
 			</script>
 			<table id="ynmTable">
 				<tr>
 					<td id="yesCell">
-						<button id="yesBtn" onClick="vote('yes');">Yes</button>
-						<ul id="yesVoters"></ul>
+						<button id="yBtn" onClick="vote('y');" disabled="disabled">Yes <span id="yCount"></span></button>
+						<ul id="yVoters"></ul>
 					</td>
 					<td id="noCell">
-						<button id="noBtn" onClick="vote('no');">No</button>
-						<ul id="noVoters"></ul>
+						<button id="nBtn" onClick="vote('n');" disabled="disabled">No <span id="nCount"></span></button>
+						<ul id="nVoters"></ul>
 					</td>
 					<td id="maybeCell">
-						<button id="maybeBtn" onClick="vote('maybe');">Maybe</button>
-						<ul id="maybeVoters"></ul>
+						<button id="mBtn" onClick="vote('m');" disabled="disabled">Maybe <span id="mCount"></span></button>
+						<ul id="mVoters"></ul>
 					</td>
 				</tr>
 			</table>
