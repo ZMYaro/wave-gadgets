@@ -243,7 +243,7 @@
 					voterItem.appendChild(icon);
 					
 					var name = document.createElement("span");
-					name.innerText = voter.getDisplayName();
+					name.innerText = name.textContent = voter.getDisplayName();
 					name.title = voter.getId();
 					voterItem.appendChild(name);
 					
