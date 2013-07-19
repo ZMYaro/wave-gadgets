@@ -138,10 +138,11 @@
 				#ynmTable ul {
 					list-style-type: none;
 					padding: 0;
-					margin: 6px 2px;
+					margin: 4px 2px 0;
 				}
 				#ynmTable ul li {
 					min-height: 36px;
+					margin-bottom: 3px;
 				}
 				#ynmTable ul li img {
 					float: left;
