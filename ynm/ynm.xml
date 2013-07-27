@@ -105,11 +105,13 @@
 					background-image: none;
 					cursor: default;
 				}
-				
+				#ynmTable {
+					width: 100%;
+				}
 				#ynmTable td {
 					padding: 4px;
 					white-space: nowrap;
-					width: 1%;
+					width: 33%;
 					vertical-align: top;
 				}
 				#yesCell {
