@@ -158,9 +158,13 @@
 				}
 			</style>
 			<script type="text/javascript">
+				var participantsReady = false;
+				var stateReady = false;
+				
 				function init() {
 					if (wave && wave.isInWaveContainer()) {
 						wave.setStateCallback(stateUpdated);
+						wave.setParticipantCallback(participantUpdated);
 					}
 				}
 				gadgets.util.registerOnLoadHandler(init);
@@ -184,8 +188,18 @@
 						
 					}
 				}
-				
+				function participantUpdated() {
+					participantsReady = true;
+					render();
+				}
 				function stateUpdated() {
+					stateReady = true;
+					render();
+				}
+				function render() {
+					if(!stateReady || !participantsReady) {
+						return;
+					}
 					convertOldVotes("yes");
 					convertOldVotes("no");
 					convertOldVotes("maybe");
