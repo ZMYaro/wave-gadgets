@@ -218,7 +218,10 @@
 						voters.innerHTML = "";
 						for(var i = 0; i < answers[choice].length; i++) {
 							if(answers[choice][i]) {
-								voters.appendChild(createVoterItem(answers[choice][i]));
+								var newItem = createVoterItem(answers[choice][i]);
+								if(newItem) {
+									voters.appendChild(newItem);
+								}
 							}
 						}
 					}
@@ -240,12 +243,18 @@
 					var voterItem = document.createElement("li");
 					
 					var icon = document.createElement("img");
-					icon.src = voter.getThumbnailUrl();
+					if(voter) {
+						icon.src = voter.getThumbnailUrl();
+					}
 					voterItem.appendChild(icon);
 					
 					var name = document.createElement("span");
-					name.innerText = name.textContent = voter.getDisplayName();
-					name.title = voter.getId();
+					if(voter) {
+						name.innerText = name.textContent = voter.getDisplayName();
+					} else {
+						name.innerText = name.textContent = id;
+					}
+					name.title = id;
 					voterItem.appendChild(name);
 					
 					return voterItem;
