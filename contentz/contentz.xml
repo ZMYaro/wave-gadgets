@@ -82,6 +82,17 @@
 			<script type="text/javascript" src="http://wave-api.appspot.com/public/wave.js"></script>
 			<!--<script type="text/javascript" src="http://zmyaro.com/projects/wave/gadgets/embedscript.js"></script>-->
 			<script type="text/javascript">
+var ERROR_COLOR = "#FFAAAA";
+var ERROR_MESSAGE = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
+
+var contentContainer;
+var typeSelect;
+var sourceSelect;
+var urlInput;
+var type;
+var source;
+var url;
+
 if(!String.prototype.trim) {
 	String.prototype.trim = function() {return this.replace(/^\s+|\s+$/g, "");};
 }
@@ -104,10 +115,10 @@ var types = {
 			},
 			soundcloud: {
 				name: "SoundCloud",
-				exampleURL: "http://soundcloud.com/username/sound-name",
+				exampleURL: "https://soundcloud.com/username/sound-name",
 				urlCheck: /https?:\/\/(soundcloud\.com\/.*|soundcloud\.com\/.*\/.*|soundcloud\.com\/.*\/sets\/.*|soundcloud\.com\/groups\/.*|snd\.sc\/.*)/i,
 				getEmbedData: null,
-				oEmbedURL: "http://soundcloud.com/oembed?format=json&url=%u",
+				oEmbedURL: "https://soundcloud.com/oembed?format=json&url=%u",
 				defaultWidth: 550,
 				defaultHeight: 300
 			}
@@ -235,7 +246,7 @@ var types = {
 			},
 			youtube: {
 				name: "YouTube",
-				exampleURL: "http://www.youtube.com/watch?v=ABCDEFGHIJK",
+				exampleURL: "https://www.youtube.com/watch?v=ABCDEFGHIJK",
 				urlCheck: /((https?:\/\/(.*youtube\.com\/watch.*|.*\.youtube\.com\/v\/.*|youtu\.be\/.*|.*\.youtube\.com\/user\/.*|.*\.youtube\.com\/.*#.*\/.*|m\.youtube\.com\/watch.*|m\.youtube\.com\/index.*|.*\.youtube\.com\/profile.*|.*\.youtube\.com\/view_play_list.*|.*\.youtube\.com\/playlist.*))|(https:\/\/(.*youtube\.com\/watch.*|.*\.youtube\.com\/v\/.*)))/i,
 				getEmbedData: function(url) {
 					var vidIDRegex = /youtube\.com\/watch\?v=([^&]+)/i;
@@ -245,23 +256,15 @@ var types = {
 					} else {
 						vidID = vidIDRegex.exec(url)[1];
 					}
-					return "<iframe width=\"560\" height=\"315\" src=\"http://www.youtube.com/embed/" + vidID + "?rel=0\" frameborder=\"0\" allowfullscreen></iframe>";
+					return "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/" + vidID + "?rel=0\" frameborder=\"0\" allowfullscreen></iframe>";
 				},
-				oEmbedURL: "http://www.youtube.com/oembed?url=%u",
+				oEmbedURL: "https://www.youtube.com/oembed?url=%u",
 				defaultWidth: 560,
 				defaultHeight: 315
 			}
 		}
 	}
 };
-
-var contentContainer;
-var typeSelect;
-var sourceSelect;
-var urlInput;
-var type;
-var source;
-var url;
 
 function init() {
 	// confirm gadget is running in wave container
@@ -348,15 +351,17 @@ function modeChanged(newMode) {
 }
 function typeChanged() {
 	var newType = typeSelect.value;
-	// stop if type has not actually changed
+	
+	// Stop if type has not actually changed.
 	if(newType === type || newType === "") {
 		return;
 	}
 	
-	// update JS value
+	// Update the global type.
 	type = newType;
+	console.log("type has been changed to " + newType); // for debugging
 	
-	// update source options
+	// Update source options.
 	sourceSelect.innerHTML = "";
 	var srcTypes = types[newType].options;
 	for(var srcType in srcTypes) {
@@ -371,16 +376,18 @@ function typeChanged() {
 }
 function sourceChanged() {
 	var newSource = sourceSelect.value;
-	// stop if source has not actually changed
+	
+	// Stop if source has not actually changed.
 	if(newSource === source || newSource === "") {
 		return;
 	}
 
-	// update JS value
+	// Update the global source.
 	source = newSource;
+	console.log("source has been changed to " + newSource); // for debugging
 
 	var sourceData = types[type].options[newSource];
-	// update example URL
+	// Update example URL.
 	//urlInput.value = "";
 	urlInput.placeholder = sourceData.exampleURL;
 	// update gadget size for new potential contents
@@ -394,18 +401,24 @@ function sourceChanged() {
 }
 function urlChanged() {
 	var newURL = urlInput.value;
-	// Trim extra whitespace from the user's input
+	// Trim extra whitespace from the user's input.
 	newURL = newURL.trim();
 	
-	// stop if URL has not actually changed
+	// Stop if the URL has not actually changed.
 	if(newURL === url) {
 		return;
 	}
 
-	// update JS value
+	// Update the global URL
 	url = newURL;
+	console.log("url has been changed to " + newURL); // for debugging
+	
+	// If the URL does not begin with "http://" or "https://", add "http://" to the URL.
+	if(!(/^https?:\/\/.*/).test(url)) {
+		url = "http://" + url;
+	}
 
-	// update embed code
+	// Update embed code.
 	if(checkURL(url)) {
 		if(types[type].options[source].oEmbedURL) {
 			var oEmbedURL = types[type].options[source].oEmbedURL.replace("%u", encodeURIComponent(url));
@@ -413,17 +426,16 @@ function urlChanged() {
 		} else {
 			var newEmbedData = types[type].options[source].getEmbedData(url);
 			if(!newEmbedData) {
-				contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
-				urlInput.style.backgroundColor = "#FFAAAA";
+				contentContainer.innerHTML = ERROR_MESSAGE;
+				urlInput.style.backgroundColor = ERROR_COLOR;
 			} else if(newEmbedData !== contentContainer.innerHTML) {
 				contentContainer.innerHTML = newEmbedData;
-
 				urlInput.style.backgroundColor = null;
 			}
 		}
 	} else {
-		contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
-		urlInput.style.backgroundColor = "#FFAAAA";
+		contentContainer.innerHTML = ERROR_MESSAGE;
+		urlInput.style.backgroundColor = ERROR_COLOR;
 	}
 }
 
@@ -436,7 +448,7 @@ function checkURL(url) {
 	if(types[type].options[source].urlCheck) {
 		return types[type].options[source].urlCheck.test(url);
 	}
-	return (/https?:\/\/.*\/.*/i).test(url);
+	return (/^https?:\/\/.*\/.*/i).test(url);
 }
 
 /**
@@ -445,8 +457,8 @@ function checkURL(url) {
  */
 function processOEmbedResponse(response) {
 	if(!response.data) {
-		contentContainer.innerHTML = "<p>No embedded content has been chosen.  Please switch to edit mode and enter a valid URL to embed.</p>";
-		urlInput.style.backgroundColor = "#FFFFAA";
+		contentContainer.innerHTML = ERROR_MESSAGE;
+		urlInput.style.backgroundColor = ERROR_COLOR;
 	} else {
 		urlInput.style.backgroundColor = null;
 		var data = JSON.parse(response.data);
