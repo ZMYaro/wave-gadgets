@@ -89,9 +89,9 @@ var contentContainer;
 var typeSelect;
 var sourceSelect;
 var urlInput;
-var type;
-var source;
-var url;
+var type = "video";
+var source = "youtube";
+var url = "";
 
 if(!String.prototype.trim) {
 	String.prototype.trim = function() {return this.replace(/^\s+|\s+$/g, "");};
@@ -285,9 +285,15 @@ function init() {
 		}
 		*/
 		// add DOM event listeners
-		typeSelect.addEventListener("change", typeChanged, false);
-		sourceSelect.addEventListener("change", sourceChanged, false);
-		urlInput.addEventListener("change", urlChanged, false);
+		typeSelect.addEventListener("change", function(e) {
+			wave.getState().submitValue("type", e.target.value);
+		}, false);
+		sourceSelect.addEventListener("change", function(e) {
+			wave.getState().submitValue("source", e.target.value);
+		}, false);
+		urlInput.addEventListener("change", function(e) {
+			wave.getState().submitValue("url", e.target.value);
+		}, false);
 		
 		// add wave event listeners
 		wave.setModeCallback(modeChanged);
@@ -296,111 +302,89 @@ function init() {
 }
 gadgets.util.registerOnLoadHandler(init);
 
-function stateChanged(newState) {
-	var newType = newState.get("type", type);
-	if(newType === null) {
+function stateChanged() {
+	// Update the type.
+	var newType = wave.getState().get("type", type);
+	if(newType === null || newType === "") {
 		newType = types.default;
 	}
-	if(newType !== type) {
-		//type = newType;
-		typeSelect.value = newType;
-		typeChanged();
+	typeChanged(newType);
+	
+	// Update the source.
+	var newSource = wave.getState().get("source", source);
+	if(newSource === null || newSource === "") {
+		newSource = types[type].default;
 	}
-	var newSource = newState.get("source", source);
-	if(newSource !== source) {
-		//source = newSource;
-		sourceSelect.value = newSource;
-		sourceChanged();
-	}
-	var newURL = newState.get("url", url);
-	if(newURL !== url) {
-		//url = newURL;
-		urlInput.value = newURL;
-		urlChanged();
-	}
+	sourceChanged(newSource);
+	
+	// Update the URL.
+	var newURL = wave.getState().get("url", url);
+	urlChanged(newURL);
+	
+	typeSelect.disabled = false;
+	sourceSelect.disabled = false;
+	urlInput.disabled = false;
 }
 function modeChanged(newMode) {
 	if(newMode === wave.Mode.EDIT) {
 		document.getElementById("content").style.display = "none";
 		document.getElementById("settings").style.display = "block";
 	} else {
-		urlChanged();
 		document.getElementById("settings").style.display = "none";
-
-		var delta = {};
-		var state = wave.getState();
-		if(state) { // avoid bug in which wave.getState() retuns null
-			if(type !== state.get("type")) {
-				delta.type = type;
-			}
-			if(source !== state.get("source")) {
-				delta.source = source;
-			}
-			if(url !== state.get("url")) {
-				delta.url = url;
-			}
-			state.submitDelta(delta);
-		}
-
-		gadgets.window.adjustWidth(contentContainer.style.width);
-		gadgets.window.adjustHeight(contentContainer.style.height);
-
 		document.getElementById("content").style.display = "block";
-
 	}
 }
-function typeChanged() {
-	var newType = typeSelect.value;
-	
+function typeChanged(newType) {
 	// Stop if type has not actually changed.
 	if(newType === type || newType === "") {
 		return;
 	}
 	
-	// Update the global type.
+	// Update the global type and reflect the change in the UI.
 	type = newType;
+	typeSelect.value = newType;
 	console.log("type has been changed to " + newType); // for debugging
 	
 	// Update source options.
 	sourceSelect.innerHTML = "";
-	var srcTypes = types[newType].options;
-	for(var srcType in srcTypes) {
+	var srcOptions = types[newType].options;
+	for(var srcOption in srcOptions) {
 		var newOption = document.createElement("option");
-		newOption.value = srcType;
-		newOption.innerHTML = srcTypes[srcType].name;
-		newOption.selected = (srcType === types[newType].default);
+		newOption.value = srcOption;
+		newOption.innerHTML = srcOptions[srcOption].name;
+		newOption.selected = (srcOption === types[newType].default);
 		sourceSelect.appendChild(newOption);
 	}
 	
-	sourceChanged();
+	if(!(source in types[newType].options)) {
+		wave.getState.submitValue("source", types[newType].default);
+	}
 }
-function sourceChanged() {
-	var newSource = sourceSelect.value;
-	
-	// Stop if source has not actually changed.
-	if(newSource === source || newSource === "") {
+function sourceChanged(newSource) {
+	// Stop if the source has not actually changed or is not valid for the current type.
+	if(newSource === source || newSource === "" || !(newSource in types[type].options)) {
 		return;
 	}
 
-	// Update the global source.
+	// Update the global source and reflect the change in the UI.
 	source = newSource;
+	sourceSelect.value = newSource;
 	console.log("source has been changed to " + newSource); // for debugging
-
+	
 	var sourceData = types[type].options[newSource];
-	// Update example URL.
-	//urlInput.value = "";
-	urlInput.placeholder = sourceData.exampleURL;
+	// Update the example URL.
+	urlInput.placeholder = sourceData.exampleURL || "";
 	// update gadget size for new potential contents
 	contentContainer.style.width = sourceData.defaultWidth;
 	contentContainer.style.height = sourceData.defaultHeight;
 	gadgets.window.adjustWidth(sourceData.defaultWidth);
 	gadgets.window.adjustHeight(sourceData.defaultHeight < 82 ? 82 : sourceData.defaultHeight);
 	
+	var currentURL = url;
 	url = ""; // Reset the URL so the urlChanged function actually gets run
-	urlChanged();
+	urlChanged(currentURL);
 }
-function urlChanged() {
-	var newURL = urlInput.value;
+function urlChanged(newURL) {
 	// Trim extra whitespace from the user's input.
 	newURL = newURL.trim();
 	
@@ -408,16 +392,19 @@ function urlChanged() {
 	if(newURL === url) {
 		return;
 	}
-
-	// Update the global URL
-	url = newURL;
-	console.log("url has been changed to " + newURL); // for debugging
 	
 	// If the URL does not begin with "http://" or "https://", add "http://" to the URL.
-	if(!(/^https?:\/\/.*/).test(url)) {
-		url = "http://" + url;
+	if(!(/^https?:\/\/.*/).test(newURL)) {
+		newURL = "http://" + newURL;
+		// Also update the text field to show the modified URL.
+		urlInput.value = newURL;
 	}
-
+	
+	// Update the global URL and reflect the change in the UI.
+	url = newURL;
+	urlInput.value = newURL;
+	console.log("url has been changed to " + newURL); // for debugging
+	
 	// Update embed code.
 	if(checkURL(url)) {
 		if(types[type].options[source].oEmbedURL) {
