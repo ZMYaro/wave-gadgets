@@ -99,12 +99,12 @@
 					if (liked) {
 						document.getElementById("likeBtn").setAttribute("onclick", "unlike();");
 						document.getElementById("likeBtn").title = "Click to un-like";
-						document.getElementById("likeImg").src = "https://mail.google.com/mail/pimages/2/up/like-selected.gif";
+						document.getElementById("likeImg").src = "data:image/gif;base64,R0lGODlhEAAQAKIAAHxnFP/gaP/zxNyuAP///////wAAAAAAACH5BAEHAAUALAAAAAAQABAAAAM6WLrc/m/ISdsQOOvBbvggyC0e8JliJwQo+o2KF4ZwcQF4jtY34fs7FeAHfKlYuhRpNVOSKFCIdApJAAA7";
 						document.getElementById("likeTxt").innerHTML = "Un-like";
 					} else {
 						document.getElementById("likeBtn").setAttribute("onclick", "like();");
 						document.getElementById("likeBtn").title = "Click if you like this";
-						document.getElementById("likeImg").src = "https://mail.google.com/mail/pimages/2/up/like-deselected.gif";
+						document.getElementById("likeImg").src = "data:image/gif;base64,R0lGODlhEAAQAJEAAH+d0P///4igy////yH5BAEHAAMALAAAAAAQABAAAAIwnI+pu+IPkwi0WoGm3fjoAFAh1RnfOAbl8G1k5l4waI3rCeTVHe9zv2JBhoyikVEAADs=";
 						document.getElementById("likeTxt").innerHTML = "Like";
 					}
 					
@@ -174,7 +174,7 @@
 			</script>
 			<div>
 				<button id="likeBtn" onclick="like();" title="Click if you like this">
-					<img src="https://mail.google.com/mail/pimages/2/up/like-deselected.gif" id="likeImg"/>
+					<img src="data:image/gif;base64,R0lGODlhEAAQAJEAAH+d0P///4igy////yH5BAEHAAMALAAAAAAQABAAAAIwnI+pu+IPkwi0WoGm3fjoAFAh1RnfOAbl8G1k5l4waI3rCeTVHe9zv2JBhoyikVEAADs=" id="likeImg"/>
 					<span id="likeTxt">Like</span>
 				</button>
 				<span id="total" class="link" onClick="showLikers();">
