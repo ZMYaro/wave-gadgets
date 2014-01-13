@@ -357,7 +357,7 @@ function typeChanged(newType) {
 	}
 	
 	if(!(source in types[newType].options)) {
-		wave.getState.submitValue("source", types[newType].default);
+		wave.getState().submitValue("source", types[newType].default);
 	}
 }
 function sourceChanged(newSource) {
